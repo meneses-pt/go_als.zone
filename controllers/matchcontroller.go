@@ -13,7 +13,7 @@ import (
 func GetMatches(w http.ResponseWriter, r *http.Request) {
 	var matches []entities.Match
 	rows, err := database.DBPool.Query(context.Background(),
-		"SELECT id, slug, datetime, score from matches_match LIMIT 50")
+		"SELECT id, slug, datetime, score from matches_match order by datetime desc LIMIT 50")
 	for rows.Next() {
 		var m entities.Match
 		err := rows.Scan(&m.ID, &m.Slug, &m.Datetime, &m.Score)
