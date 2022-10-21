@@ -17,7 +17,7 @@ jobs:
           go version
           go get -u golang.org/x/lint/golint
       - name: Run build
-        run: GOOS=linux GOARCH=amd64 go build . -o go_als.zone
+        run: GOOS=linux GOARCH=amd64 go build -o go_als.zone
       - name: Run vet & lint
         run: |
           go vet .
