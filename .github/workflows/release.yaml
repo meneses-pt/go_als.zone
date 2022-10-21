@@ -1,0 +1,40 @@
+name: Deployment to Production
+on: [push]
+jobs:
+  build:
+    name: Deployment Process
+    runs-on: ubuntu-latest
+    environment: DigitalOcean
+    steps:
+      - name: Build
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ‘1.14.0’
+      - name: Install dependencies
+        run: |
+          go version
+          go get -u golang.org/x/lint/golint
+      - name: Run build
+        run: GOOS=linux GOARCH=amd64 go build . -o go_als.zone
+      - name: Run vet & lint
+        run: |
+          go vet .
+          golint .
+      - name: Copy Executable
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY_ED25519 }}
+          source: "go_als.zone"
+          script: "/home/goals_zone/go_als.zone"
+      - name: Build
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY_ED25519 }}
+          port: ${{ secrets.PORT }}
+          script: supervisorctl restart go_als.zone
