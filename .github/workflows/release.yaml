@@ -7,9 +7,9 @@ jobs:
     environment: DigitalOcean
     steps:
       - name: Build
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: '>=1.19.0'
       - name: Install dependencies
@@ -27,7 +27,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY_ED25519 }}
           source: "go_als.zone_new"
-          script: "/home/goals_zone/go_als.zone"
+          target: "/home/goals_zone/go_als.zone"
       - name: Restart application
         uses: appleboy/ssh-action@master
         with:
