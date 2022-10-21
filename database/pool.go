@@ -27,9 +27,8 @@ func Connect() error {
 	if err != nil {
 		_, err := fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
 		if err != nil {
-			return nil
+			return err
 		}
-		os.Exit(1)
 	}
 	return err
 }

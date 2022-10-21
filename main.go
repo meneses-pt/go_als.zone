@@ -7,6 +7,7 @@ import (
 	"github.com/meneses-pt/go_als.zone/database"
 	"log"
 	"net/http"
+	"os"
 )
 
 func registerProductRoutes(router *mux.Router) {
@@ -15,7 +16,11 @@ func registerProductRoutes(router *mux.Router) {
 
 func main() {
 	// Initialize Database
-	database.Connect()
+	err := database.Connect()
+	if err != nil {
+		log.Println("Exiting because of error creating DB connection")
+		os.Exit(1)
+	}
 
 	// Initialize the router
 	router := mux.NewRouter().StrictSlash(true)
