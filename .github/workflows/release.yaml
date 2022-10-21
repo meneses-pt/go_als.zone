@@ -17,7 +17,7 @@ jobs:
           go version
           go get -u golang.org/x/lint/golint
       - name: Run build
-        run: GOOS=linux GOARCH=amd64 go build -o go_als.zone
+        run: GOOS=linux GOARCH=amd64 go build -o go_als.zone_new
       - name: Run vet
         run: go vet
       - name: Copy Executable
@@ -26,13 +26,13 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY_ED25519 }}
-          source: "go_als.zone"
+          source: "go_als.zone_new"
           script: "/home/goals_zone/go_als.zone"
-      - name: Build
+      - name: Restart application
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY_ED25519 }}
           port: ${{ secrets.PORT }}
-          script: supervisorctl restart go_als.zone
+          script: ./deploy_go.sh
