@@ -15,10 +15,14 @@ type Config struct {
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 }
 
+func init() {
+	loadAppConfig()
+}
+
 var AppConfig *Config
 
-// LoadAppConfig reads application configuration from environment variables.
-func LoadAppConfig() {
+// loadAppConfig reads application configuration from environment variables.
+func loadAppConfig() {
 	log.Println("Loading Server Configurations...")
 	viper.SetConfigFile(".env")
 	err := viper.ReadInConfig()

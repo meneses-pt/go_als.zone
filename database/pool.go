@@ -9,9 +9,8 @@ import (
 )
 
 var DBPool *pgxpool.Pool
-var _ error
 
-func Connect() {
+func Connect() error {
 	var c = util.AppConfig
 	var databaseUrl = fmt.Sprintf("postgresql://%s:%s@%s:%s/%s",
 		c.DBUser,
@@ -22,14 +21,15 @@ func Connect() {
 	)
 	_, err := fmt.Fprintf(os.Stderr, "%s", databaseUrl)
 	if err != nil {
-		return
+		return err
 	}
 	DBPool, err = pgxpool.New(context.Background(), databaseUrl)
 	if err != nil {
 		_, err := fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
 		if err != nil {
-			return
+			return nil
 		}
 		os.Exit(1)
 	}
+	return err
 }
