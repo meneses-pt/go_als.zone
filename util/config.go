@@ -13,25 +13,22 @@ type Config struct {
 	DBName     string `mapstructure:"DB_NAME"`
 	DBUser     string `mapstructure:"DB_USER"`
 	DBPassword string `mapstructure:"DB_PASSWORD"`
+	HTTPAddr   string `mapstructure:"HTTP_ADDR"`
 }
 
-func init() {
-	loadAppConfig()
-}
-
-var AppConfig *Config
-
-// loadAppConfig reads application configuration from environment variables.
-func loadAppConfig() {
+// LoadAppConfig reads application configuration from environment variables.
+func LoadAppConfig() (*Config, error) {
 	log.Println("Loading Server Configurations...")
 	viper.SetConfigFile(".env")
 	err := viper.ReadInConfig()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	err = viper.Unmarshal(&AppConfig)
+	var appConfig *Config
+	err = viper.Unmarshal(&appConfig)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	fmt.Println(AppConfig.DBHost)
+	fmt.Println(appConfig.DBHost)
+	return appConfig, nil
 }

@@ -5,30 +5,23 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/meneses-pt/go_als.zone/util"
-	"os"
+	"log"
 )
 
-var DBPool *pgxpool.Pool
-
-func Connect() error {
-	var c = util.AppConfig
-	var databaseUrl = fmt.Sprintf("postgresql://%s:%s@%s:%s/%s",
+// Connect establishes a connection to the database from the given configuration file.
+func Connect(ctx context.Context, logger *log.Logger, c *util.Config) (*pgxpool.Pool, error) {
+	databaseUrl := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s",
 		c.DBUser,
 		c.DBPassword,
 		c.DBHost,
 		c.DBPort,
 		c.DBName,
 	)
-	_, err := fmt.Fprintf(os.Stderr, "%s", databaseUrl)
+	logger.Printf("Database connection string: %s", databaseUrl)
+	pool, err := pgxpool.New(ctx, databaseUrl)
 	if err != nil {
-		return err
+		logger.Printf("Unable to create connection pool: %v", err)
+		return nil, err
 	}
-	DBPool, err = pgxpool.New(context.Background(), databaseUrl)
-	if err != nil {
-		_, err := fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		if err != nil {
-			return err
-		}
-	}
-	return err
+	return pool, nil
 }
