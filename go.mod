@@ -6,6 +6,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx/v5 v5.0.3
 	github.com/spf13/viper v1.13.0
+	github.com/victorspringer/http-cache v0.0.0-20221006212759-e323d9f0f0c4
 )
 
 require (

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/meneses-pt/go_als.zone/controllers"
@@ -9,6 +10,11 @@ import (
 	"github.com/meneses-pt/go_als.zone/util"
 	"log"
 	"net/http"
+	"os"
+	"time"
+
+	"github.com/victorspringer/http-cache"
+	"github.com/victorspringer/http-cache/adapter/memory"
 )
 
 func registerProductRoutes(router *mux.Router, logger *log.Logger, pool *pgxpool.Pool, appConfig *util.Config) {
@@ -34,6 +40,27 @@ func main() {
 
 	// Initialize the router
 	router := mux.NewRouter().StrictSlash(true)
+
+	memcached, err := memory.NewAdapter(
+		memory.AdapterWithAlgorithm(memory.LRU),
+		memory.AdapterWithCapacity(10000000),
+	)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	cacheClient, err := cache.NewClient(
+		cache.ClientWithAdapter(memcached),
+		cache.ClientWithTTL(30*time.Second),
+		cache.ClientWithRefreshKey("opn"),
+	)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	router.Use(cacheClient.Middleware)
+
 	// Register Routes
 	registerProductRoutes(router, logger, pool, appConfig)
 	// Start the server

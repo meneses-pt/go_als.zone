@@ -20,27 +20,26 @@ type MatchController struct {
 func (c *MatchController) GetMatches(w http.ResponseWriter, r *http.Request) {
 	limit, offset := HandleLimitOffsetParams(r)
 	var matches []entities.Match
-	sqlQuery := `SELECT
-    			DISTINCT
-    			mm.id,
-    			mm.score,
-    			split_part(mm.score, ':', 1) "home_team_score",
-    			split_part(mm.score, ':', 2) "home_team_score",
-    			mm.datetime,
-    			mm.slug,
-    			mht.name,
-    			CONCAT($1::text, mht.logo_file),
-    			mht.slug,
-    			mat.name,
-    			CONCAT($1::text, mat.logo_file),
-    			mat.slug
-				FROM matches_match mm
-				INNER JOIN matches_videogoal mv ON mm.id = mv.match_id
-				INNER JOIN matches_team mht ON mht.id = mm.home_team_id
-				INNER JOIN matches_team mat ON mat.id = mm.away_team_id
-				ORDER BY mm.datetime DESC
-				LIMIT $2
-				OFFSET $3;`
+	sqlQuery := `
+		SELECT DISTINCT mm.id,
+						mm.score,
+						split_part(mm.score, ':', 1) "home_team_score",
+						split_part(mm.score, ':', 2) "home_team_score",
+						mm.datetime,
+						mm.slug,
+						mht.name,
+						CONCAT($1::text, mht.logo_file),
+						mht.slug,
+						mat.name,
+						CONCAT($1::text, mat.logo_file),
+						mat.slug
+		FROM matches_match mm
+				 INNER JOIN matches_videogoal mv ON mm.id = mv.match_id
+				 INNER JOIN matches_team mht ON mht.id = mm.home_team_id
+				 INNER JOIN matches_team mat ON mat.id = mm.away_team_id
+		ORDER BY mm.datetime DESC
+		LIMIT $2 OFFSET $3;
+	`
 	rows, err := c.DBPool.Query(r.Context(), sqlQuery, c.AppConfig.MediaRoot, limit, offset)
 	for rows.Next() {
 		var m entities.Match
