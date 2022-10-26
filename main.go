@@ -41,6 +41,7 @@ func main() {
 	// Initialize the router
 	router := mux.NewRouter().StrictSlash(true)
 
+	//Memory Cache
 	memcached, err := memory.NewAdapter(
 		memory.AdapterWithAlgorithm(memory.LRU),
 		memory.AdapterWithCapacity(10000000),
