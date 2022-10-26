@@ -11,8 +11,8 @@ import (
 	"net/http"
 )
 
-func registerProductRoutes(router *mux.Router, logger *log.Logger, pool *pgxpool.Pool) {
-	matchController := &controllers.MatchController{DBPool: pool, Logger: logger}
+func registerProductRoutes(router *mux.Router, logger *log.Logger, pool *pgxpool.Pool, appConfig *util.Config) {
+	matchController := &controllers.MatchController{DBPool: pool, Logger: logger, AppConfig: appConfig}
 	router.HandleFunc("/api/matches", matchController.GetMatches).Methods("GET")
 }
 
@@ -35,7 +35,7 @@ func main() {
 	// Initialize the router
 	router := mux.NewRouter().StrictSlash(true)
 	// Register Routes
-	registerProductRoutes(router, logger, pool)
+	registerProductRoutes(router, logger, pool, appConfig)
 	// Start the server
 	log.Printf("Starting Server on %s", appConfig.HTTPAddr)
 	log.Fatal(http.ListenAndServe(appConfig.HTTPAddr, router))

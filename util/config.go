@@ -14,6 +14,7 @@ type Config struct {
 	DBUser     string `mapstructure:"DB_USER"`
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	HTTPAddr   string `mapstructure:"HTTP_ADDR"`
+	MediaRoot  string `mapstructure:"MEDIA_ROOT"`
 }
 
 // LoadAppConfig reads application configuration from environment variables.
