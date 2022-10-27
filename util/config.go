@@ -15,6 +15,7 @@ type Config struct {
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	HTTPAddr   string `mapstructure:"HTTP_ADDR"`
 	MediaRoot  string `mapstructure:"MEDIA_ROOT"`
+	RedditRoot string `mapstructure:"REDDIT_ROOT"`
 }
 
 // LoadAppConfig reads application configuration from environment variables.

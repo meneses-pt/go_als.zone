@@ -2,25 +2,16 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/meneses-pt/go_als.zone/controllers"
 	"github.com/meneses-pt/go_als.zone/database"
 	"github.com/meneses-pt/go_als.zone/util"
-	"log"
-	"net/http"
-	"os"
-	"time"
-
 	"github.com/victorspringer/http-cache"
 	"github.com/victorspringer/http-cache/adapter/memory"
+	"log"
+	"net/http"
+	"time"
 )
-
-func registerProductRoutes(router *mux.Router, logger *log.Logger, pool *pgxpool.Pool, appConfig *util.Config) {
-	matchController := &controllers.MatchController{DBPool: pool, Logger: logger, AppConfig: appConfig}
-	router.HandleFunc("/api/matches", matchController.GetMatches).Methods("GET")
-}
 
 func main() {
 	ctx := context.Background()
@@ -28,13 +19,13 @@ func main() {
 
 	appConfig, err := util.LoadAppConfig()
 	if err != nil {
-		log.Fatal("Exiting because of error reading configuration")
+		log.Fatalf("Exiting because of error reading configuration: %s", err)
 	}
 
 	// Initialize Database
 	pool, err := database.Connect(ctx, logger, appConfig)
 	if err != nil {
-		log.Fatal("Exiting because of error creating DB connection")
+		log.Fatalf("Exiting because of error creating DB connection: %s", err)
 	}
 	defer pool.Close()
 
@@ -47,24 +38,32 @@ func main() {
 		memory.AdapterWithCapacity(10000000),
 	)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatalf("Exiting because of Memory Adapter configuration: %s", err)
 	}
-
 	cacheClient, err := cache.NewClient(
 		cache.ClientWithAdapter(memcached),
 		cache.ClientWithTTL(30*time.Second),
 		cache.ClientWithRefreshKey("opn"),
 	)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatalf("Exiting because of cache Adapter configuration: %s", err)
 	}
 	router.Use(cacheClient.Middleware)
 
+	// Where ORIGIN_ALLOWED is like `scheme://dns[:port]`, or `*` (insecure)
+	corsObj := handlers.AllowedOrigins([]string{
+		"https://goals.zone",
+		"https://goals.africa",
+		"https://gzreact.meneses.pt",
+		"https://gz.meneses.pt",
+		"https://videogoals.meneses.pt",
+	})
+
 	// Register Routes
-	registerProductRoutes(router, logger, pool, appConfig)
+	registerMatchesRoutes(router, logger, pool, appConfig)
+	registerTeamsRoutes(router, logger, pool, appConfig)
+
 	// Start the server
 	log.Printf("Starting Server on %s", appConfig.HTTPAddr)
-	log.Fatal(http.ListenAndServe(appConfig.HTTPAddr, router))
+	log.Fatal(http.ListenAndServe(appConfig.HTTPAddr, handlers.CORS(corsObj)(router)))
 }
