@@ -87,11 +87,6 @@ func (c *Controller) GetMatch(w http.ResponseWriter, r *http.Request) {
 		}
 		m.Videos = append(m.Videos, v)
 	}
-
-	if err != nil {
-		c.Logger.Println(err)
-		return
-	}
 	encodeResultIntoJson(w, err, m, c)
 }
 

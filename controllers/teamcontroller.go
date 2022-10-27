@@ -76,10 +76,5 @@ func (c *Controller) GetTeam(w http.ResponseWriter, r *http.Request) {
 		m := scanMatch(mRows, c)
 		t.Matches = append(t.Matches, m)
 	}
-
-	if err != nil {
-		c.Logger.Println(err)
-		return
-	}
 	encodeResultIntoJson(w, err, t, c)
 }
