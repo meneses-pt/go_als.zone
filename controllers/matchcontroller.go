@@ -54,38 +54,47 @@ func (c *Controller) GetMatch(w http.ResponseWriter, r *http.Request) {
 		m = scanMatch(rows, c)
 	}
 
-	videosSqlQuery := fmt.Sprintf(`
-		SELECT %s
+	vmSqlQuery := fmt.Sprintf(`
+		SELECT %s, %s
 		FROM matches_videogoal v
-				 INNER JOIN matches_postmatch mp ON v.id = mp.videogoal_id
+				INNER JOIN matches_postmatch mp ON v.id = mp.videogoal_id                                 
+         		LEFT JOIN matches_videogoalmirror vm on v.id = vm.videogoal_id
 		WHERE v.match_id = $2
-		ORDER BY v.minute;
-	`, videoFields)
-	mirrorsSqlQuery := fmt.Sprintf(`
-		SELECT %s
-		FROM matches_videogoalmirror vm
-		WHERE vm.videogoal_id = $1;
-	`, mirrorFields)
-	vRows, err := c.DBPool.Query(r.Context(), videosSqlQuery, c.AppConfig.RedditRoot, m.ID)
+		ORDER BY v.minute, vm.id;
+	`, videoFields, mirrorFields)
+	vmRows, err := c.DBPool.Query(r.Context(), vmSqlQuery, c.AppConfig.RedditRoot, m.ID)
 	if err != nil {
 		c.Logger.Println(err)
 	}
-	for vRows.Next() {
-		v, url := scanVideo(vRows, c)
-		var firstMirror = entities.Mirror{
-			Title: "Original Link",
-			Url:   url,
-		}
-		v.Mirrors = append(v.Mirrors, firstMirror)
-		mRows, err := c.DBPool.Query(r.Context(), mirrorsSqlQuery, v.ID)
+	for vmRows.Next() {
+		var v entities.Video
+		var url string
+		var mr entities.Mirror
+		err := vmRows.Scan(
+			&v.ID,
+			&v.Title,
+			&v.RedditLink,
+			&url,
+			&mr.Title,
+			&mr.Url,
+		)
 		if err != nil {
 			c.Logger.Println(err)
 		}
-		for mRows.Next() {
-			m := scanMirror(mRows, c)
-			v.Mirrors = append(v.Mirrors, m)
+		if len(m.Videos) == 0 || m.Videos[len(m.Videos)-1].ID != v.ID {
+			title := "Original Link"
+			var firstMirror = entities.Mirror{
+				Title: &title,
+				Url:   &url,
+			}
+			v.Mirrors = append(v.Mirrors, firstMirror)
+			if mr.Url != nil {
+				v.Mirrors = append(v.Mirrors, mr)
+			}
+			m.Videos = append(m.Videos, v)
+		} else {
+			m.Videos[len(m.Videos)-1].Mirrors = append(m.Videos[len(m.Videos)-1].Mirrors, mr)
 		}
-		m.Videos = append(m.Videos, v)
 	}
 	encodeResultIntoJson(w, err, m, c)
 }
