@@ -57,6 +57,7 @@ func main() {
 		"https://gzreact.meneses.pt",
 		"https://gz.meneses.pt",
 		"https://videogoals.meneses.pt",
+		"http://localhost:3000",
 	})
 
 	// Register Routes

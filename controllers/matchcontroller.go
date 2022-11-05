@@ -74,6 +74,7 @@ func (c *Controller) GetMatch(w http.ResponseWriter, r *http.Request) {
 			&v.ID,
 			&v.Title,
 			&v.RedditLink,
+			&v.SimplePermalink,
 			&url,
 			&mr.Title,
 			&mr.Url,

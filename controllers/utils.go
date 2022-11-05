@@ -106,7 +106,7 @@ CONCAT($1::text, mat.logo_file),
 mat.slug
 `
 
-var videoFields = `v.id, v.title, CONCAT($1::text, mp.permalink), v.url`
+var videoFields = `v.id, v.title, CONCAT($1::text, mp.permalink), RIGHT(LEFT(mp.permalink, 25), 6), v.url`
 
 var teamFields = `
 t.id, 
