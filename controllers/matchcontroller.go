@@ -60,7 +60,7 @@ func (c *Controller) GetMatch(w http.ResponseWriter, r *http.Request) {
 				INNER JOIN matches_postmatch mp ON v.id = mp.videogoal_id                                 
          		LEFT JOIN matches_videogoalmirror vm on v.id = vm.videogoal_id
 		WHERE v.match_id = $2
-		ORDER BY v.minute, v.id, vm.id;
+		ORDER BY v.id, vm.id;
 	`, videoFields, mirrorFields)
 	vmRows, err := c.DBPool.Query(r.Context(), vmSqlQuery, c.AppConfig.RedditRoot, m.ID)
 	if err != nil {
