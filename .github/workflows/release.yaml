@@ -20,7 +20,7 @@ jobs:
           go version
           go get -u golang.org/x/lint/golint
       - name: Run build
-        run: GOOS=linux GOARCH=amd64 go build -o go_als.zone_new
+        run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o go_als.zone_new
       - name: Run vet
         run: go vet
       - name: Copy Executable
