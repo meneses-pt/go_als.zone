@@ -58,6 +58,12 @@ func main() {
 		"https://gz.meneses.pt",
 		"https://videogoals.meneses.pt",
 		"http://localhost:3000",
+		"capacitor://localhost",
+		"http://localhost",
+		"ionic://localhost",
+		"http://localhost:8080",
+		"http://localhost:8100",
+		"http://localhost:4200",
 	})
 
 	// Register Routes
