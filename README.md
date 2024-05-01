@@ -2,6 +2,14 @@
 
 This is an API developed in GO, that acts as a read interface for the [goals.zone](https://goals.zone/) project
 
+## Update packages
+
+Change the version in go.mod file and then
+
+```bash
+go mod tidy
+```
+
 ## Build
 
 ```bash
