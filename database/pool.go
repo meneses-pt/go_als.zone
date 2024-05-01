@@ -17,7 +17,7 @@ func Connect(ctx context.Context, logger *log.Logger, c *util.Config) (*pgxpool.
 		c.DBPort,
 		c.DBName,
 	)
-	logger.Printf("Database connection string: %s", databaseUrl)
+	logger.Printf("Going to connect to database: %s", c.DBName)
 	pool, err := pgxpool.New(ctx, databaseUrl)
 	if err != nil {
 		logger.Printf("Unable to create connection pool: %v", err)
